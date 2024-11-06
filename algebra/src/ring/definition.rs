@@ -17,7 +17,7 @@ pub trait PolynomialRing<ConfigPoly, ConfigVec>:
     + for<'a> Product<&'a Self>
     + for<'a> MulAssign<&'a Self>
 {
-    fn add(&self, other: &Polynomial<ConfigPoly>) -> Self;
+    fn add(&self, other: &Self) -> Self;
 
     fn multiply(&self, other: &Self) -> Self;
 
