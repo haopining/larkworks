@@ -2,7 +2,7 @@ use core::iter::Product;
 use std::ops::{Mul, MulAssign};
 
 use crate::{
-    ConfigZZVecGoldilocks256, ConfigZZpXGoldilocks256, NTTDomain, PolyGoldilock256, Polynomial,
+    ConfigZZVecGoldilocks256, ConfigZZpX, ConfigZZpXGoldilocks256, NTTDomain, PolyGoldilock256, Polynomial,
     PolynomialRing, ZZVec,
 };
 
@@ -62,9 +62,7 @@ where
     }
 }
 
-impl PolynomialRing<ConfigRingGoldilocks256, ConfigZZpXGoldilocks256> for RingGoldilock256 {
-    
-}
+impl PolynomialRing<ConfigRingGoldilocks256, ConfigZZpXGoldilocks256> for RingGoldilock256 {}
 
 #[cfg(test)]
 impl RingGoldilock256 {
