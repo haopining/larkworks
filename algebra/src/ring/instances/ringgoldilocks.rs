@@ -2,7 +2,7 @@ use core::iter::Product;
 use std::ops::{Mul, MulAssign};
 
 use crate::{
-    ConfigZZVecGoldilocks256, ConfigZZpX, ConfigZZpXGoldilocks256, NTTDomain, PolyGoldilock256, Polynomial,
+    ConfigZZVecGoldilocks256, ConfigZZpX, ConfigZZpXGoldilocks256, NTTDomain, PolyGoldilock256, Polynomial, Goldilocks,
     PolynomialRing, ZZVec,
 };
 
@@ -91,7 +91,17 @@ impl RingGoldilock256 {
         }
         Self::from_primitive_types(&c)
     }
+
+    /// Dot product of two vectors, and vectors elements are polynomials ring elements
+    pub fn dot_product(a: &Vec<Self>, b: &Vec<Self>) -> Self {
+        let mut res = Self::zero();
+        for (i, coeff) in a.iter().enumerate() {
+            res += Self::schoolbook_mul(coeff, &b[i]);
+        }
+        res
+    }
 }
+
 
 #[test]
 fn test_ring_mul() {
@@ -107,4 +117,69 @@ fn test_ring_mul() {
     let c = RingGoldilock256::schoolbook_mul(&a, &b);
     let d = a * b;
     assert_eq!(c, d)
+}
+
+
+#[test]
+fn test_ring_dot_product_example() {
+    // Define the polynomials for s1
+    // s1 = (1 + 2x, 3 + 4x)
+    let coeffs_s1_0 = [
+        Goldilocks::from(1u64), // Coefficient for x^0
+        Goldilocks::from(2u64), // Coefficient for x^1
+    ];
+    let mut s1_0_coeffs = vec![Goldilocks::from(0u64); ConfigZZpXGoldilocks256::DIM];
+    s1_0_coeffs[..coeffs_s1_0.len()].copy_from_slice(&coeffs_s1_0);
+    let s1_0 = RingGoldilock256::from_coefficients_vec_unchecked(s1_0_coeffs);
+
+    let coeffs_s1_1 = [
+        Goldilocks::from(3u64), // Coefficient for x^0
+        Goldilocks::from(4u64), // Coefficient for x^1
+    ];
+    let mut s1_1_coeffs = vec![Goldilocks::from(0u64); ConfigZZpXGoldilocks256::DIM];
+    s1_1_coeffs[..coeffs_s1_1.len()].copy_from_slice(&coeffs_s1_1);
+    let s1_1 = RingGoldilock256::from_coefficients_vec_unchecked(s1_1_coeffs);
+
+    let s1 = vec![s1_0, s1_1];
+
+    // Define the polynomials for s2
+    // s2 = (5 + 6x, 7 + 8x)
+    let coeffs_s2_0 = [
+        Goldilocks::from(5u64), // Coefficient for x^0
+        Goldilocks::from(6u64), // Coefficient for x^1
+    ];
+    let mut s2_0_coeffs = vec![Goldilocks::from(0u64); ConfigZZpXGoldilocks256::DIM];
+    s2_0_coeffs[..coeffs_s2_0.len()].copy_from_slice(&coeffs_s2_0);
+    let s2_0 = RingGoldilock256::from_coefficients_vec_unchecked(s2_0_coeffs);
+
+    let coeffs_s2_1 = [
+        Goldilocks::from(7u64), // Coefficient for x^0
+        Goldilocks::from(8u64), // Coefficient for x^1
+    ];
+    let mut s2_1_coeffs = vec![Goldilocks::from(0u64); ConfigZZpXGoldilocks256::DIM];
+    s2_1_coeffs[..coeffs_s2_1.len()].copy_from_slice(&coeffs_s2_1);
+    let s2_1 = RingGoldilock256::from_coefficients_vec_unchecked(s2_1_coeffs);
+
+    let s2 = vec![s2_0, s2_1];
+
+    // Compute the dot product <s1, s2>
+    let result = RingGoldilock256::dot_product(&s1, &s2);
+
+    // Manually compute the expected result
+    // (1 + 2x)(5 + 6x) = 5 + 6x + 10x + 12x^2 = 5 + 16x + 12x^2
+    // (3 + 4x)(7 + 8x) = 21 + 24x + 28x + 32x^2 = 21 + 52x + 32x^2
+    // <s1, s2> = (5 + 16x + 12x^2) + (21 + 52x + 32x^2)
+    //          = 26 + 68x + 44x^2
+
+    let coeffs_expected = [
+        Goldilocks::from(26u64), // Coefficient for x^0
+        Goldilocks::from(68u64), // Coefficient for x^1
+        Goldilocks::from(44u64), // Coefficient for x^2
+    ];
+    let mut expected_coeffs = vec![Goldilocks::from(0u64); ConfigZZpXGoldilocks256::DIM];
+    expected_coeffs[..coeffs_expected.len()].copy_from_slice(&coeffs_expected);
+    let expected = RingGoldilock256::from_coefficients_vec_unchecked(expected_coeffs);
+
+    // Assert that the computed result matches the expected result
+    assert_eq!(result, expected);
 }
