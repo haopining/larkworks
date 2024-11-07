@@ -64,7 +64,6 @@ where
 
 impl PolynomialRing<ConfigRingGoldilocks256, ConfigZZpXGoldilocks256> for RingGoldilock256 {}
 
-#[cfg(test)]
 impl RingGoldilock256 {
     /// school book multiplication
     /// output = a(x) * b(x) mod x^N +1 mod MODULUS
