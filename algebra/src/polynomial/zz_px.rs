@@ -1,4 +1,5 @@
 use core::slice::Iter;
+use num::integer::Roots;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result;
@@ -192,12 +193,14 @@ impl<C: ConfigZZpX> Polynomial<C> for ZZpX<C> {
 
     /// Infinity norm of the polynomial
     fn infinity_norm(&self) -> u32 {
-        todo!()
+        let max_coeff = self.coeffs.iter().map(|x| x.0.into()).max().unwrap_or(0);
+        max_coeff as u32
     }
 
     /// L2 norm of the polynomial
     fn l2_norm(&self) -> u32 {
-        todo!()
+        let sum_of_squares: u64 = self.coeffs.iter().map(|x| x.0.into() * x.0.into()).sum();
+        (sum_of_squares).sqrt() as u32
     }
 
     /// degree of the polynomial
